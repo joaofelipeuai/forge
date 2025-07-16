@@ -79,7 +79,7 @@ func runDemo() {
 		})
 	})
 	
-	fmt.Println("🌐 Servidor iniciando na porta 3000...")
+	fmt.Println("🌐 Servidor iniciando na porta 8080...")
 	fmt.Println("📋 Endpoints disponíveis:")
 	fmt.Println("   GET  /           - Página inicial")
 	fmt.Println("   GET  /users/:id  - Buscar usuário")
