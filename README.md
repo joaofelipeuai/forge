@@ -30,20 +30,23 @@ func main() {
     app := forge.New()
     
     // Middleware
+    app.Use(forge.Recovery())
     app.Use(forge.Logger())
     app.Use(forge.CORS())
     
     // Rotas
     app.GET("/", func(c *forge.Context) error {
-        return c.JSON(200, map[string]string{
+        return c.JSON(200, map[string]interface{}{
             "message": "Hello, Forge!",
+            "version": forge.Version,
         })
     })
     
     app.GET("/users/:id", func(c *forge.Context) error {
         userID := c.Params["id"]
-        return c.JSON(200, map[string]string{
+        return c.JSON(200, map[string]interface{}{
             "user_id": userID,
+            "name":    "John Doe",
         })
     })
     
@@ -57,6 +60,37 @@ func main() {
 go mod init seu-projeto
 go get github.com/joaofelipeuai/forge
 ```
+
+## 🧪 Testando o Framework
+
+Para testar se o framework está funcionando:
+
+```bash
+# Clone o repositório
+git clone https://github.com/joaofelipeuai/forge.git
+cd forge
+
+# Execute o exemplo principal (porta :3000)
+go run cmd/demo_server.go
+
+# Ou teste os exemplos específicos:
+
+# Exemplo simples (porta :8080)
+cd examples/simple && go run simple_server.go
+
+# Exemplo básico (porta :8080)
+cd examples/basic && go run basic_server.go
+
+# Exemplo avançado com todas as funcionalidades (porta :8080)
+cd examples/advanced && go run advanced_server.go
+```
+
+### Estrutura dos Exemplos
+
+- **`cmd/demo_server.go`** - Servidor de demonstração principal
+- **`examples/simple/simple_server.go`** - Exemplo minimalista
+- **`examples/basic/basic_server.go`** - Exemplo com funcionalidades básicas
+- **`examples/advanced/advanced_server.go`** - Exemplo com todas as funcionalidades (JWT, WebSocket, Upload, etc.)
 
 ## 🛠️ API Reference
 
@@ -124,7 +158,7 @@ app.Use(forge.RateLimiter(100, time.Minute))
 ## 📊 Benchmarks
 
 ```
-BenchmarkVelocity-8    50000    25000 ns/op    1024 B/op    8 allocs/op
+BenchmarkForge-8    50000    25000 ns/op    1024 B/op    8 allocs/op
 ```
 
 ## 🤝 Contribuindo

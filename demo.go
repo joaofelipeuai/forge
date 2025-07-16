@@ -1,4 +1,4 @@
-package main
+package forge
 
 import (
 	"fmt"
@@ -91,6 +91,8 @@ func runDemo() {
 	log.Fatal(app.Listen(":8080"))
 }
 
-func main() {
+// RunDemo executa uma demonstração do framework
+// Para usar: forge.RunDemo()
+func RunDemo() {
 	runDemo()
 }

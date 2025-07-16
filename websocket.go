@@ -1,4 +1,4 @@
-package main
+package forge
 
 import (
 	"crypto/sha1"
@@ -33,7 +33,7 @@ func (f *Forge) WebSocket(pattern string, handler WebSocketHandler) {
 // upgradeWebSocket handles the WebSocket upgrade process
 func (f *Forge) upgradeWebSocket(c *Context, handler WebSocketHandler) error {
 	// Check if it's a WebSocket upgrade request
-	if !isWebSocketUpgrade(c.Request) {
+	if !IsWebSocketUpgrade(c.Request) {
 		return c.String(400, "Bad Request: Not a WebSocket upgrade")
 	}
 
@@ -44,7 +44,7 @@ func (f *Forge) upgradeWebSocket(c *Context, handler WebSocketHandler) error {
 	}
 
 	// Generate accept key
-	acceptKey := generateAcceptKey(key)
+	acceptKey := GenerateAcceptKey(key)
 
 	// Set WebSocket headers
 	c.Response.Header().Set("Upgrade", "websocket")
@@ -64,14 +64,14 @@ func (f *Forge) upgradeWebSocket(c *Context, handler WebSocketHandler) error {
 	return nil
 }
 
-// isWebSocketUpgrade checks if the request is a WebSocket upgrade
-func isWebSocketUpgrade(r *http.Request) bool {
+// IsWebSocketUpgrade checks if the request is a WebSocket upgrade
+func IsWebSocketUpgrade(r *http.Request) bool {
 	return strings.ToLower(r.Header.Get("Upgrade")) == "websocket" &&
 		strings.Contains(strings.ToLower(r.Header.Get("Connection")), "upgrade")
 }
 
-// generateAcceptKey generates the WebSocket accept key
-func generateAcceptKey(key string) string {
+// GenerateAcceptKey generates the WebSocket accept key
+func GenerateAcceptKey(key string) string {
 	h := sha1.New()
 	h.Write([]byte(key + websocketMagicString))
 	return base64.StdEncoding.EncodeToString(h.Sum(nil))

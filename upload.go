@@ -1,4 +1,4 @@
-package main
+package forge
 
 import (
 	"crypto/rand"
@@ -76,7 +76,7 @@ func FileUpload(config *UploadConfig) MiddlewareFunc {
 		if c.Request.MultipartForm != nil && c.Request.MultipartForm.File != nil {
 			for fieldName, files := range c.Request.MultipartForm.File {
 				for _, fileHeader := range files {
-					uploadedFile, err := processUploadedFile(fileHeader, config)
+					uploadedFile, err := ProcessUploadedFile(fileHeader, config)
 					if err != nil {
 						result.Errors = append(result.Errors, fmt.Errorf("field %s: %v", fieldName, err))
 						continue
@@ -95,8 +95,8 @@ func FileUpload(config *UploadConfig) MiddlewareFunc {
 	}
 }
 
-// processUploadedFile processes a single uploaded file
-func processUploadedFile(fileHeader *multipart.FileHeader, config *UploadConfig) (*UploadedFile, error) {
+// ProcessUploadedFile processes a single uploaded file
+func ProcessUploadedFile(fileHeader *multipart.FileHeader, config *UploadConfig) (*UploadedFile, error) {
 	// Check file size
 	if fileHeader.Size > config.MaxFileSize {
 		return nil, fmt.Errorf("file size %d exceeds maximum allowed size %d", fileHeader.Size, config.MaxFileSize)
@@ -111,14 +111,14 @@ func processUploadedFile(fileHeader *multipart.FileHeader, config *UploadConfig)
 
 	// Check content type
 	contentType := fileHeader.Header.Get("Content-Type")
-	if !isAllowedType(contentType, config.AllowedTypes) {
+	if !IsAllowedType(contentType, config.AllowedTypes) {
 		return nil, fmt.Errorf("file type %s is not allowed", contentType)
 	}
 
 	// Generate filename
 	filename := fileHeader.Filename
 	if config.GenerateName {
-		filename = generateUniqueFilename(fileHeader.Filename, config.PreserveExt)
+		filename = GenerateUniqueFilename(fileHeader.Filename, config.PreserveExt)
 	}
 
 	// Create destination file
@@ -148,8 +148,8 @@ func processUploadedFile(fileHeader *multipart.FileHeader, config *UploadConfig)
 	return uploadedFile, nil
 }
 
-// isAllowedType checks if the content type is allowed
-func isAllowedType(contentType string, allowedTypes []string) bool {
+// IsAllowedType checks if the content type is allowed
+func IsAllowedType(contentType string, allowedTypes []string) bool {
 	if len(allowedTypes) == 0 {
 		return true // Allow all types if none specified
 	}
@@ -169,8 +169,8 @@ func isAllowedType(contentType string, allowedTypes []string) bool {
 	return false
 }
 
-// generateUniqueFilename generates a unique filename
-func generateUniqueFilename(originalName string, preserveExt bool) string {
+// GenerateUniqueFilename generates a unique filename
+func GenerateUniqueFilename(originalName string, preserveExt bool) string {
 	timestamp := time.Now().Unix()
 	randomBytes := make([]byte, 8)
 	rand.Read(randomBytes)
@@ -220,7 +220,7 @@ func SingleFileUpload(config *UploadConfig, fieldName string) MiddlewareFunc {
 		defer file.Close()
 
 		// Create a multipart.FileHeader slice for processing
-		uploadedFile, err := processUploadedFile(fileHeader, config)
+		uploadedFile, err := ProcessUploadedFile(fileHeader, config)
 		if err != nil {
 			return err
 		}

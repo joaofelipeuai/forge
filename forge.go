@@ -1,6 +1,6 @@
-// Package main provides a modern, type-safe web framework for Go
+// Package forge provides a modern, type-safe web framework for Go
 // Inspired by Express.js but optimized for Go's unique characteristics
-package main
+package forge
 
 import (
 	"context"
@@ -232,6 +232,11 @@ func (f *Forge) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if matchedRoute == nil {
 		http.NotFound(w, r)
 		return
+	}
+	
+	// Set template engine in context if available
+	if f.templateEngine != nil {
+		ctx.Set("template_engine", f.templateEngine)
 	}
 	
 	// Build middleware chain

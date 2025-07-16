@@ -1,4 +1,4 @@
-package main
+package forge
 
 import (
 	"fmt"
@@ -166,6 +166,8 @@ func testForgeFramework() {
 	fmt.Println("🔨 O Forge Framework está 100% operacional!")
 }
 
-func main() {
+// TestFramework executa testes do framework
+// Para usar: forge.TestFramework()
+func TestFramework() {
 	testForgeFramework()
 }

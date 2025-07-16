@@ -1,4 +1,4 @@
-package main
+package forge
 
 import (
 	"fmt"
@@ -114,14 +114,19 @@ func init() {
 
 // Context method for rendering templates
 func (c *Context) Render(status int, name string, data interface{}) error {
-	// This assumes the template engine is set on the Forge instance
-	// We'll need to modify the main forge.go to include this
+	// Get the template engine from the context or forge instance
+	if engine := c.Get("template_engine"); engine != nil {
+		te := engine.(*TemplateEngine)
+		c.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
+		c.Response.WriteHeader(status)
+		return te.Render(c.Response, name, data)
+	}
+	
+	// Fallback if no template engine is set
 	c.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
 	c.Response.WriteHeader(status)
-	
-	// For now, return a simple implementation
-	// This will be integrated with the main Forge struct
-	return nil
+	_, err := c.Response.Write([]byte("<h1>Template Engine Not Configured</h1>"))
+	return err
 }
 
 // Built-in template functions
