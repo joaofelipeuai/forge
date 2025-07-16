@@ -7,7 +7,7 @@ import (
 )
 
 func runDemo() {
-	fmt.Println("🚀 Velocity Framework Demo")
+	fmt.Println("🚀 Forge Framework Demo")
 	fmt.Println("==========================")
 	
 	app := New()
@@ -20,7 +20,7 @@ func runDemo() {
 	// Rotas de demonstração
 	app.GET("/", func(c *Context) error {
 		return c.JSON(200, map[string]interface{}{
-			"message": "🚀 Velocity Framework funcionando!",
+			"message": "🚀 Forge Framework funcionando!",
 			"version": Version,
 			"timestamp": time.Now().Unix(),
 		})
