@@ -88,7 +88,7 @@ func runDemo() {
 	fmt.Println("   GET  /profile    - Perfil (requer JWT)")
 	fmt.Println("")
 	
-	log.Fatal(app.Listen(":3000"))
+	log.Fatal(app.Listen(":8080"))
 }
 
 func main() {
