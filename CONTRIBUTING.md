@@ -1,17 +1,17 @@
-# Contribuindo para o Velocity Framework
+# Contribuindo para o Forge Framework
 
-Obrigado por considerar contribuir para o Velocity! Este documento fornece diretrizes para contribuições.
+Obrigado por considerar contribuir para o Forge! Este documento fornece diretrizes para contribuições.
 
 ## 🚀 Como Contribuir
 
 ### Reportando Bugs
 
-1. Verifique se o bug já foi reportado nas [Issues](https://github.com/velocity-framework/velocity/issues)
+1. Verifique se o bug já foi reportado nas [Issues](https://github.com/joaofelipeuai/forge/issues)
 2. Se não encontrar, crie uma nova issue com:
    - Descrição clara do problema
    - Passos para reproduzir
    - Comportamento esperado vs atual
-   - Versão do Go e do Velocity
+   - Versão do Go e do Forge
    - Sistema operacional
 
 ### Sugerindo Melhorias
@@ -147,6 +147,6 @@ go test -run TestNomeDaFuncao ./...
 
 - GitHub Issues: Para bugs e sugestões
 - Discussions: Para perguntas gerais
-- Email: velocity-framework@example.com
+- Email: joaofelipeaps@gmail.com
 
 Obrigado por contribuir! 🚀
