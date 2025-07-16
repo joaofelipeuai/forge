@@ -59,8 +59,9 @@ O servidor iniciará na porta `:8080`
 ## 🌐 Endpoints Disponíveis
 
 ### Públicos
-- `GET /` - Página inicial com informações
-- `GET /template` - Demonstração do template engine
+- `GET /` - Página inicial com informações (JSON)
+- `GET /template` - Template simples de demonstração
+- `GET /demo` - Interface web completa com todas as funcionalidades ⭐
 - `GET /health` - Health check do sistema
 
 ### Autenticação
@@ -96,11 +97,12 @@ curl -X POST -F "files=@arquivo.txt" http://localhost:8080/upload
 ```
 
 ### 3. WebSocket
-- Abra o navegador em `http://localhost:8080/template`
+- Abra o navegador em `http://localhost:8080/demo`
 - Use a interface web para testar WebSocket
 
 ### 4. Interface Web Completa
-Acesse `http://localhost:8080/template` para uma interface completa que demonstra todas as funcionalidades.
+- **Template simples:** `http://localhost:8080/template` - Demonstração básica
+- **Interface completa:** `http://localhost:8080/demo` - Dashboard completo com todas as funcionalidades ⭐
 
 ## 🎨 Interface Web
 
@@ -157,6 +159,23 @@ examples/advanced/
 5. **Adicionar** testes automatizados
 6. **Deploy** em produção
 
+## 🔧 Correções Implementadas
+
+### Template Engine Corrigido ✅
+- **Problema:** Templates retornavam erro "incomplete or empty template"
+- **Solução:** Corrigida a implementação do `template.New().ParseFiles()`
+- **Resultado:** Templates funcionando perfeitamente em modo desenvolvimento e produção
+
+### Middleware Otimizado ✅
+- **JWT:** Aplicado apenas em rotas protegidas (não globalmente)
+- **Upload:** Middleware inline para evitar conflitos
+- **CORS/Rate Limiting:** Funcionando corretamente
+
+### Estrutura Organizada ✅
+- Arquivos com nomes descritivos
+- Separação clara entre funcionalidades
+- Documentação completa e atualizada
+
 ## 🎯 Características Técnicas
 
 - **Zero Dependencies**: Usa apenas a biblioteca padrão do Go
@@ -164,6 +183,7 @@ examples/advanced/
 - **High Performance**: Otimizado para alta performance
 - **Production Ready**: Pronto para uso em produção
 - **Extensível**: Fácil de estender e personalizar
+- **Template Engine**: Sistema robusto com hot reload
 
 ---
 
