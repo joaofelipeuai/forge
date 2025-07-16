@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -54,13 +55,19 @@ func (te *TemplateEngine) LoadTemplates() error {
 	for _, tmplPath := range templates {
 		name := strings.TrimSuffix(filepath.Base(tmplPath), "."+te.extension)
 		
-		tmpl := template.New(name).Funcs(te.funcMap)
-		tmpl, err := tmpl.ParseFiles(tmplPath)
+		// Parse the template file directly without New()
+		tmpl, err := template.New("").Funcs(te.funcMap).ParseFiles(tmplPath)
 		if err != nil {
 			return err
 		}
 		
-		te.templates[name] = tmpl
+		// Get the actual template by filename
+		actualTmpl := tmpl.Lookup(filepath.Base(tmplPath))
+		if actualTmpl == nil {
+			return fmt.Errorf("template not found in parsed file: %s", tmplPath)
+		}
+		
+		te.templates[name] = actualTmpl
 	}
 
 	return nil
@@ -70,7 +77,9 @@ func (te *TemplateEngine) LoadTemplates() error {
 func (te *TemplateEngine) Render(w io.Writer, name string, data interface{}) error {
 	if te.devMode {
 		// In dev mode, reload template on each request
-		te.loadSingleTemplate(name)
+		if err := te.loadSingleTemplate(name); err != nil {
+			return fmt.Errorf("failed to load template in dev mode: %v", err)
+		}
 	}
 
 	te.mu.RLock()
@@ -90,15 +99,25 @@ func (te *TemplateEngine) loadSingleTemplate(name string) error {
 	defer te.mu.Unlock()
 
 	tmplPath := filepath.Join(te.baseDir, name+"."+te.extension)
-	tmpl := template.New(name).Funcs(te.funcMap)
 	
-	var err error
-	tmpl, err = tmpl.ParseFiles(tmplPath)
+	// Check if file exists
+	if _, err := os.Stat(tmplPath); os.IsNotExist(err) {
+		return fmt.Errorf("template file not found: %s", tmplPath)
+	}
+	
+	// Parse the template file directly without New()
+	tmpl, err := template.New("").Funcs(te.funcMap).ParseFiles(tmplPath)
 	if err != nil {
 		return err
 	}
 	
-	te.templates[name] = tmpl
+	// Get the actual template by filename
+	actualTmpl := tmpl.Lookup(filepath.Base(tmplPath))
+	if actualTmpl == nil {
+		return fmt.Errorf("template not found in parsed file: %s", tmplPath)
+	}
+	
+	te.templates[name] = actualTmpl
 	return nil
 }
 

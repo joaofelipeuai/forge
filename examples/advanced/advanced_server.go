@@ -80,11 +80,14 @@ func main() {
 		})
 	})
 	
-	// Protected routes group
-	protected := app // In a real implementation, you'd create route groups
-	protected.Use(forge.JWTAuth(jwtConfig))
-	
-	protected.GET("/profile", func(c *forge.Context) error {
+	// Protected route with JWT middleware applied individually
+	app.GET("/profile", func(c *forge.Context) error {
+		// Apply JWT middleware inline for this route only
+		jwtMiddleware := forge.JWTAuth(jwtConfig)
+		if err := jwtMiddleware(c); err != nil {
+			return err
+		}
+		
 		jwt := forge.GetJWT(c)
 		userID := forge.GetUserID(c)
 		
@@ -97,8 +100,13 @@ func main() {
 	})
 	
 	// File upload routes
-	app.Use(forge.FileUpload(uploadConfig)) // Apply upload middleware globally for upload routes
 	app.POST("/upload", func(c *forge.Context) error {
+		// Apply upload middleware inline for this route only
+		uploadMiddleware := forge.FileUpload(uploadConfig)
+		if err := uploadMiddleware(c); err != nil {
+			return err
+		}
+		
 		result := c.GetUploadResult()
 		
 		if !result.Success {
@@ -170,6 +178,17 @@ func main() {
 		data := map[string]interface{}{
 			"Title":   "Forge Template Demo",
 			"Message": "Hello from Forge Framework!",
+			"Time":    time.Now().Format("2006-01-02 15:04:05"),
+		}
+		
+		return c.Render(200, "test", data)
+	})
+	
+	// Template complexo (index.html)
+	app.GET("/demo", func(c *forge.Context) error {
+		data := map[string]interface{}{
+			"Title":   "Forge Framework Demo Avançado",
+			"Message": "Interface completa com todas as funcionalidades!",
 			"Time":    time.Now().Format("2006-01-02 15:04:05"),
 		}
 		

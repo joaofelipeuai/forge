@@ -1,136 +1,567 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{.Title}}</title>
+    <title>{{.Title}} - Forge Framework Demo</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔨</text></svg>">
     <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --warning-color: #f39c12;
+            --info-color: #3498db;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--primary-gradient);
             color: white;
             min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
         }
+        
         .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 1s ease-out;
+        }
+        
+        .header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #fff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-bar {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .status-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--error-color);
+            animation: pulse 2s infinite;
+        }
+        
+        .status-indicator.connected {
+            background: var(--success-color);
+        }
+        
+        .main-content {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            padding: 2.5rem;
+            animation: fadeIn 1.2s ease-out;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+        
+        .feature-card {
             background: rgba(255, 255, 255, 0.1);
             padding: 2rem;
             border-radius: 15px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
             text-align: center;
-            margin-bottom: 2rem;
-            font-size: 2.5rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
         }
-        .feature-grid {
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .feature-card:hover::before {
+            left: 100%;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+        
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .upload-area:hover {
+            border-color: white;
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.02);
+        }
+        
+        .upload-area.dragover {
+            border-color: var(--success-color);
+            background: rgba(46, 204, 113, 0.2);
+            transform: scale(1.05);
+        }
+        
+        button {
+            background: var(--secondary-gradient);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(-1px);
+        }
+        
+        button.success {
+            background: linear-gradient(45deg, var(--success-color), #27ae60);
+        }
+        
+        button.warning {
+            background: linear-gradient(45deg, var(--warning-color), #e67e22);
+        }
+        
+        button.info {
+            background: linear-gradient(45deg, var(--info-color), #2980b9);
+        }
+        
+        .chat-section {
+            margin-top: 3rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            padding: 2rem;
+        }
+        
+        .chat-section h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        #messages {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1.5rem;
+            border-radius: 15px;
+            height: 300px;
+            overflow-y: auto;
+            margin: 1rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .message {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            animation: slideInLeft 0.3s ease-out;
+        }
+        
+        .message.success {
+            background: rgba(46, 204, 113, 0.2);
+            border-left: 3px solid var(--success-color);
+        }
+        
+        .message.error {
+            background: rgba(231, 76, 60, 0.2);
+            border-left: 3px solid var(--error-color);
+        }
+        
+        .message.info {
+            background: rgba(52, 152, 219, 0.2);
+            border-left: 3px solid var(--info-color);
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        input[type="text"] {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        input[type="text"]:focus {
+            background: white;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--success-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 1rem;
             margin: 2rem 0;
         }
-        .feature-card {
+        
+        .stat-card {
             background: rgba(255, 255, 255, 0.1);
             padding: 1.5rem;
             border-radius: 10px;
             text-align: center;
         }
-        .upload-area {
-            border: 2px dashed rgba(255, 255, 255, 0.5);
-            padding: 2rem;
-            border-radius: 10px;
-            text-align: center;
-            margin: 1rem 0;
-            cursor: pointer;
-            transition: all 0.3s ease;
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--success-color);
         }
-        .upload-area:hover {
-            border-color: white;
-            background: rgba(255, 255, 255, 0.1);
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 0.5rem;
         }
-        button {
-            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
-            color: white;
-            border: none;
-            padding: 0.8rem 2rem;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 1rem;
-            margin: 0.5rem;
-            transition: transform 0.2s ease;
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        button:hover {
-            transform: translateY(-2px);
+        
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        #messages {
-            background: rgba(0, 0, 0, 0.2);
-            padding: 1rem;
-            border-radius: 10px;
-            height: 200px;
-            overflow-y: auto;
-            margin: 1rem 0;
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        input[type="text"] {
-            width: 70%;
-            padding: 0.8rem;
-            border: none;
-            border-radius: 25px;
-            margin-right: 0.5rem;
+        
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .status-bar {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🚀 {{.Title}}</h1>
-        <p style="text-align: center; font-size: 1.2rem;">{{.Message}}</p>
-        <p style="text-align: center; opacity: 0.8;">Generated at: {{.Time}}</p>
+        <div class="header">
+            <h1>🔨 {{.Title}}</h1>
+            <p>{{.Message}}</p>
+            <p style="opacity: 0.7; font-size: 1rem;">Gerado em: {{.Time}}</p>
+        </div>
         
-        <div class="feature-grid">
-            <div class="feature-card">
-                <h3>🔐 JWT Authentication</h3>
-                <button onclick="login()">Login Demo</button>
-                <button onclick="getProfile()">Get Profile</button>
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-indicator" id="serverStatus"></div>
+                <span>Servidor</span>
             </div>
-            
-            <div class="feature-card">
-                <h3>📁 File Upload</h3>
-                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-                    <p>Click to upload files</p>
-                    <input type="file" id="fileInput" multiple style="display: none;" onchange="uploadFiles()">
-                </div>
+            <div class="status-item">
+                <div class="status-indicator" id="wsStatus"></div>
+                <span>WebSocket</span>
             </div>
-            
-            <div class="feature-card">
-                <h3>🔄 WebSocket</h3>
-                <button onclick="connectWebSocket()">Connect WebSocket</button>
-                <button onclick="sendBroadcast()">Send Broadcast</button>
-            </div>
-            
-            <div class="feature-card">
-                <h3>⚡ Hot Reload</h3>
-                <p>Edit this template and see changes instantly!</p>
-                <button onclick="location.reload()">Refresh Page</button>
+            <div class="status-item">
+                <div class="status-indicator" id="authStatus"></div>
+                <span>Autenticação</span>
             </div>
         </div>
         
-        <div>
-            <h3>💬 WebSocket Messages</h3>
-            <div id="messages"></div>
-            <input type="text" id="messageInput" placeholder="Type a message...">
-            <button onclick="sendMessage()">Send</button>
+        <div class="main-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="requestCount">0</div>
+                    <div class="stat-label">Requisições</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="uploadCount">0</div>
+                    <div class="stat-label">Uploads</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="messageCount">0</div>
+                    <div class="stat-label">Mensagens</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="uptime">0s</div>
+                    <div class="stat-label">Tempo Online</div>
+                </div>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>🔐 Autenticação JWT</h3>
+                    <p>Sistema completo de autenticação com tokens JWT seguros</p>
+                    <button onclick="login()" class="success">Fazer Login</button>
+                    <button onclick="getProfile()" class="info">Ver Perfil</button>
+                    <button onclick="logout()" class="warning">Logout</button>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>📁 Upload de Arquivos</h3>
+                    <p>Upload múltiplo com validação e progress bar</p>
+                    <div class="upload-area" id="uploadArea">
+                        <p>📎 Arraste arquivos aqui ou clique para selecionar</p>
+                        <p style="font-size: 0.9rem; opacity: 0.7;">Suporte para múltiplos arquivos</p>
+                        <input type="file" id="fileInput" multiple style="display: none;" onchange="uploadFiles()">
+                    </div>
+                    <div class="progress-bar" id="uploadProgress" style="display: none;">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🔄 WebSocket Real-time</h3>
+                    <p>Comunicação bidirecional em tempo real</p>
+                    <button onclick="connectWebSocket()" class="success">Conectar</button>
+                    <button onclick="disconnectWebSocket()" class="warning">Desconectar</button>
+                    <button onclick="sendBroadcast()" class="info">Broadcast</button>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>⚡ Hot Reload</h3>
+                    <p>Recarregamento automático durante desenvolvimento</p>
+                    <button onclick="location.reload()" class="info">Recarregar</button>
+                    <button onclick="testHotReload()" class="success">Testar Hot Reload</button>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🎨 Template Engine</h3>
+                    <p>Sistema de templates dinâmico com funções personalizadas</p>
+                    <button onclick="testTemplate()" class="info">Testar Template</button>
+                    <button onclick="reloadTemplates()" class="warning">Recarregar Templates</button>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🛡️ Middleware</h3>
+                    <p>CORS, Rate Limiting, Recovery e Logger integrados</p>
+                    <button onclick="testCORS()" class="success">Testar CORS</button>
+                    <button onclick="testRateLimit()" class="warning">Testar Rate Limit</button>
+                </div>
+            </div>
+            
+            <div class="chat-section">
+                <h3>💬 Chat WebSocket em Tempo Real</h3>
+                <div id="messages"></div>
+                <div class="input-group">
+                    <input type="text" id="messageInput" placeholder="Digite sua mensagem..." onkeypress="handleKeyPress(event)">
+                    <button onclick="sendMessage()" class="success">Enviar</button>
+                    <button onclick="clearMessages()" class="warning">Limpar</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
+        // Estado global da aplicação
         let token = localStorage.getItem('jwt_token');
         let ws = null;
+        let startTime = Date.now();
+        let stats = {
+            requests: 0,
+            uploads: 0,
+            messages: 0
+        };
         
-        // JWT Authentication
+        // Inicialização da página
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupEventListeners();
+            updateStatusIndicators();
+            startStatsUpdater();
+        });
+        
+        function initializeApp() {
+            // Verificar se há token salvo
+            if (token) {
+                updateAuthStatus(true);
+                addMessage('🔐 Token JWT encontrado no localStorage', 'info');
+            }
+            
+            // Configurar drag & drop para upload
+            setupDragAndDrop();
+            
+            // Auto-conectar WebSocket após 1 segundo
+            setTimeout(connectWebSocket, 1000);
+            
+            addMessage('🚀 Forge Framework Demo inicializado!', 'success');
+        }
+        
+        function setupEventListeners() {
+            // Upload area click
+            document.getElementById('uploadArea').addEventListener('click', function() {
+                document.getElementById('fileInput').click();
+            });
+            
+            // Enter key no input de mensagem
+            document.getElementById('messageInput').addEventListener('keypress', handleKeyPress);
+        }
+        
+        function setupDragAndDrop() {
+            const uploadArea = document.getElementById('uploadArea');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            uploadArea.addEventListener('drop', handleDrop, false);
+        }
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        function highlight(e) {
+            document.getElementById('uploadArea').classList.add('dragover');
+        }
+        
+        function unhighlight(e) {
+            document.getElementById('uploadArea').classList.remove('dragover');
+        }
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+        
+        function handleFiles(files) {
+            document.getElementById('fileInput').files = files;
+            uploadFiles();
+        }
+        
+        // Autenticação JWT
         async function login() {
             try {
+                incrementStat('requests');
                 const response = await fetch('/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' }
@@ -140,43 +571,56 @@
                 if (data.token) {
                     token = data.token;
                     localStorage.setItem('jwt_token', token);
-                    addMessage('✅ Login successful! Token saved.');
+                    updateAuthStatus(true);
+                    addMessage('✅ Login realizado com sucesso! Token salvo.', 'success');
                 } else {
-                    addMessage('❌ Login failed: ' + (data.error || 'Unknown error'));
+                    updateAuthStatus(false);
+                    addMessage('❌ Falha no login: ' + (data.error || 'Erro desconhecido'), 'error');
                 }
             } catch (error) {
-                addMessage('❌ Login error: ' + error.message);
+                updateAuthStatus(false);
+                addMessage('❌ Erro no login: ' + error.message, 'error');
             }
         }
         
         async function getProfile() {
             if (!token) {
-                addMessage('❌ Please login first');
+                addMessage('❌ Faça login primeiro', 'error');
                 return;
             }
             
             try {
+                incrementStat('requests');
                 const response = await fetch('/profile', {
                     headers: { 'Authorization': 'Bearer ' + token }
                 });
                 const data = await response.json();
                 
                 if (response.ok) {
-                    addMessage('👤 Profile: ' + JSON.stringify(data, null, 2));
+                    addMessage('👤 Perfil obtido: ' + JSON.stringify(data, null, 2), 'success');
                 } else {
-                    addMessage('❌ Profile error: ' + (data.error || 'Unknown error'));
+                    addMessage('❌ Erro no perfil: ' + (data.error || 'Erro desconhecido'), 'error');
                 }
             } catch (error) {
-                addMessage('❌ Profile error: ' + error.message);
+                addMessage('❌ Erro no perfil: ' + error.message, 'error');
             }
         }
         
-        // File Upload
+        function logout() {
+            token = null;
+            localStorage.removeItem('jwt_token');
+            updateAuthStatus(false);
+            addMessage('🚪 Logout realizado com sucesso', 'info');
+        }
+        
+        // Upload de arquivos
         async function uploadFiles() {
             const fileInput = document.getElementById('fileInput');
             const files = fileInput.files;
             
             if (files.length === 0) return;
+            
+            showUploadProgress();
             
             const formData = new FormData();
             for (let file of files) {
@@ -184,6 +628,7 @@
             }
             
             try {
+                incrementStat('requests');
                 const response = await fetch('/upload', {
                     method: 'POST',
                     body: formData
@@ -191,40 +636,82 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    addMessage('📁 Upload successful: ' + data.count + ' files uploaded');
+                    incrementStat('uploads', data.count);
+                    addMessage(`📁 Upload realizado com sucesso: ${data.count} arquivo(s) enviado(s)`, 'success');
+                    updateUploadProgress(100);
                 } else {
-                    addMessage('❌ Upload failed: ' + JSON.stringify(data.errors));
+                    addMessage('❌ Falha no upload: ' + JSON.stringify(data.errors), 'error');
                 }
             } catch (error) {
-                addMessage('❌ Upload error: ' + error.message);
+                addMessage('❌ Erro no upload: ' + error.message, 'error');
+            } finally {
+                hideUploadProgress();
             }
+        }
+        
+        function showUploadProgress() {
+            document.getElementById('uploadProgress').style.display = 'block';
+            updateUploadProgress(0);
+            // Simular progresso
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                updateUploadProgress(progress);
+                if (progress >= 90) {
+                    clearInterval(interval);
+                }
+            }, 100);
+        }
+        
+        function updateUploadProgress(percent) {
+            document.getElementById('progressFill').style.width = percent + '%';
+        }
+        
+        function hideUploadProgress() {
+            setTimeout(() => {
+                document.getElementById('uploadProgress').style.display = 'none';
+            }, 1000);
         }
         
         // WebSocket
         function connectWebSocket() {
-            if (ws) {
-                addMessage('🔌 WebSocket already connected');
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                addMessage('🔌 WebSocket já está conectado', 'info');
                 return;
             }
             
             ws = new WebSocket('ws://localhost:8080/ws');
             
             ws.onopen = function() {
-                addMessage('🔌 WebSocket connected');
+                updateWebSocketStatus(true);
+                addMessage('🔌 WebSocket conectado com sucesso', 'success');
             };
             
             ws.onmessage = function(event) {
-                addMessage('📨 ' + event.data);
+                incrementStat('messages');
+                addMessage('📨 ' + event.data, 'info');
             };
             
             ws.onclose = function() {
-                addMessage('🔌 WebSocket disconnected');
+                updateWebSocketStatus(false);
+                addMessage('🔌 WebSocket desconectado', 'info');
                 ws = null;
             };
             
             ws.onerror = function(error) {
-                addMessage('❌ WebSocket error: ' + error);
+                updateWebSocketStatus(false);
+                addMessage('❌ Erro no WebSocket: ' + error, 'error');
             };
+        }
+        
+        function disconnectWebSocket() {
+            if (ws) {
+                ws.close();
+                updateWebSocketStatus(false);
+                addMessage('🔌 WebSocket desconectado manualmente', 'info');
+            } else {
+                addMessage('❌ WebSocket não está conectado', 'error');
+            }
         }
         
         function sendMessage() {
@@ -235,37 +722,167 @@
             
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.send(message);
+                addMessage('📤 Você: ' + message, 'info');
                 input.value = '';
+                incrementStat('messages');
             } else {
-                addMessage('❌ WebSocket not connected');
+                addMessage('❌ WebSocket não está conectado', 'error');
+            }
+        }
+        
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
             }
         }
         
         async function sendBroadcast() {
-            const message = prompt('Enter broadcast message:');
+            const message = prompt('Digite a mensagem para broadcast:');
             if (!message) return;
             
             try {
+                incrementStat('requests');
                 const response = await fetch('/broadcast?message=' + encodeURIComponent(message), {
                     method: 'POST'
                 });
                 const data = await response.json();
-                addMessage('📢 Broadcast sent: ' + message);
+                addMessage('📢 Broadcast enviado: ' + message, 'success');
             } catch (error) {
-                addMessage('❌ Broadcast error: ' + error.message);
+                addMessage('❌ Erro no broadcast: ' + error.message, 'error');
             }
         }
         
-        function addMessage(message) {
+        // Funções de teste
+        async function testTemplate() {
+            try {
+                incrementStat('requests');
+                const response = await fetch('/template');
+                if (response.ok) {
+                    addMessage('🎨 Template testado com sucesso', 'success');
+                } else {
+                    addMessage('❌ Erro no teste do template', 'error');
+                }
+            } catch (error) {
+                addMessage('❌ Erro no teste do template: ' + error.message, 'error');
+            }
+        }
+        
+        function reloadTemplates() {
+            addMessage('🔄 Recarregando templates...', 'info');
+            location.reload();
+        }
+        
+        function testHotReload() {
+            addMessage('⚡ Testando Hot Reload - modifique este template e veja as mudanças!', 'info');
+        }
+        
+        async function testCORS() {
+            try {
+                incrementStat('requests');
+                const response = await fetch('/', {
+                    method: 'OPTIONS'
+                });
+                const corsHeader = response.headers.get('Access-Control-Allow-Origin');
+                if (corsHeader) {
+                    addMessage('🛡️ CORS funcionando: ' + corsHeader, 'success');
+                } else {
+                    addMessage('❌ CORS não configurado', 'error');
+                }
+            } catch (error) {
+                addMessage('❌ Erro no teste CORS: ' + error.message, 'error');
+            }
+        }
+        
+        async function testRateLimit() {
+            addMessage('⏱️ Testando Rate Limit - enviando múltiplas requisições...', 'info');
+            
+            for (let i = 0; i < 15; i++) {
+                try {
+                    incrementStat('requests');
+                    const response = await fetch('/');
+                    if (response.status === 429) {
+                        addMessage('🛡️ Rate Limit ativado na requisição ' + (i + 1), 'warning');
+                        break;
+                    }
+                } catch (error) {
+                    addMessage('❌ Erro no teste de Rate Limit: ' + error.message, 'error');
+                    break;
+                }
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+        }
+        
+        // Funções de utilidade
+        function addMessage(message, type = 'info') {
             const messages = document.getElementById('messages');
             const div = document.createElement('div');
+            div.className = 'message ' + type;
             div.textContent = new Date().toLocaleTimeString() + ' - ' + message;
             messages.appendChild(div);
             messages.scrollTop = messages.scrollHeight;
+            
+            // Limitar número de mensagens
+            if (messages.children.length > 100) {
+                messages.removeChild(messages.firstChild);
+            }
         }
         
-        // Auto-connect WebSocket on page load
-        setTimeout(connectWebSocket, 1000);
+        function clearMessages() {
+            document.getElementById('messages').innerHTML = '';
+            addMessage('🧹 Mensagens limpas', 'info');
+        }
+        
+        function incrementStat(stat, amount = 1) {
+            stats[stat] += amount;
+            updateStats();
+        }
+        
+        function updateStats() {
+            document.getElementById('requestCount').textContent = stats.requests;
+            document.getElementById('uploadCount').textContent = stats.uploads;
+            document.getElementById('messageCount').textContent = stats.messages;
+        }
+        
+        function updateUptime() {
+            const uptime = Math.floor((Date.now() - startTime) / 1000);
+            const hours = Math.floor(uptime / 3600);
+            const minutes = Math.floor((uptime % 3600) / 60);
+            const seconds = uptime % 60;
+            
+            let uptimeStr = '';
+            if (hours > 0) uptimeStr += hours + 'h ';
+            if (minutes > 0) uptimeStr += minutes + 'm ';
+            uptimeStr += seconds + 's';
+            
+            document.getElementById('uptime').textContent = uptimeStr;
+        }
+        
+        function updateStatusIndicators() {
+            // Servidor sempre online (assumindo que a página carregou)
+            document.getElementById('serverStatus').classList.add('connected');
+        }
+        
+        function updateWebSocketStatus(connected) {
+            const indicator = document.getElementById('wsStatus');
+            if (connected) {
+                indicator.classList.add('connected');
+            } else {
+                indicator.classList.remove('connected');
+            }
+        }
+        
+        function updateAuthStatus(authenticated) {
+            const indicator = document.getElementById('authStatus');
+            if (authenticated) {
+                indicator.classList.add('connected');
+            } else {
+                indicator.classList.remove('connected');
+            }
+        }
+        
+        function startStatsUpdater() {
+            setInterval(updateUptime, 1000);
+        }
     </script>
 </body>
 </html>
