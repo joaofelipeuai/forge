@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}}</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .upload-area:hover {
+            border-color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.5rem;
+            transition: transform 0.2s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        #messages {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            border-radius: 10px;
+            height: 200px;
+            overflow-y: auto;
+            margin: 1rem 0;
+        }
+        input[type="text"] {
+            width: 70%;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 25px;
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 {{.Title}}</h1>
+        <p style="text-align: center; font-size: 1.2rem;">{{.Message}}</p>
+        <p style="text-align: center; opacity: 0.8;">Generated at: {{.Time}}</p>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>🔐 JWT Authentication</h3>
+                <button onclick="login()">Login Demo</button>
+                <button onclick="getProfile()">Get Profile</button>
+            </div>
+            
+            <div class="feature-card">
+                <h3>📁 File Upload</h3>
+                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                    <p>Click to upload files</p>
+                    <input type="file" id="fileInput" multiple style="display: none;" onchange="uploadFiles()">
+                </div>
+            </div>
+            
+            <div class="feature-card">
+                <h3>🔄 WebSocket</h3>
+                <button onclick="connectWebSocket()">Connect WebSocket</button>
+                <button onclick="sendBroadcast()">Send Broadcast</button>
+            </div>
+            
+            <div class="feature-card">
+                <h3>⚡ Hot Reload</h3>
+                <p>Edit this template and see changes instantly!</p>
+                <button onclick="location.reload()">Refresh Page</button>
+            </div>
+        </div>
+        
+        <div>
+            <h3>💬 WebSocket Messages</h3>
+            <div id="messages"></div>
+            <input type="text" id="messageInput" placeholder="Type a message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        let token = localStorage.getItem('jwt_token');
+        let ws = null;
+        
+        // JWT Authentication
+        async function login() {
+            try {
+                const response = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                
+                if (data.token) {
+                    token = data.token;
+                    localStorage.setItem('jwt_token', token);
+                    addMessage('✅ Login successful! Token saved.');
+                } else {
+                    addMessage('❌ Login failed: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                addMessage('❌ Login error: ' + error.message);
+            }
+        }
+        
+        async function getProfile() {
+            if (!token) {
+                addMessage('❌ Please login first');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/profile', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addMessage('👤 Profile: ' + JSON.stringify(data, null, 2));
+                } else {
+                    addMessage('❌ Profile error: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                addMessage('❌ Profile error: ' + error.message);
+            }
+        }
+        
+        // File Upload
+        async function uploadFiles() {
+            const fileInput = document.getElementById('fileInput');
+            const files = fileInput.files;
+            
+            if (files.length === 0) return;
+            
+            const formData = new FormData();
+            for (let file of files) {
+                formData.append('files', file);
+            }
+            
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    addMessage('📁 Upload successful: ' + data.count + ' files uploaded');
+                } else {
+                    addMessage('❌ Upload failed: ' + JSON.stringify(data.errors));
+                }
+            } catch (error) {
+                addMessage('❌ Upload error: ' + error.message);
+            }
+        }
+        
+        // WebSocket
+        function connectWebSocket() {
+            if (ws) {
+                addMessage('🔌 WebSocket already connected');
+                return;
+            }
+            
+            ws = new WebSocket('ws://localhost:8080/ws');
+            
+            ws.onopen = function() {
+                addMessage('🔌 WebSocket connected');
+            };
+            
+            ws.onmessage = function(event) {
+                addMessage('📨 ' + event.data);
+            };
+            
+            ws.onclose = function() {
+                addMessage('🔌 WebSocket disconnected');
+                ws = null;
+            };
+            
+            ws.onerror = function(error) {
+                addMessage('❌ WebSocket error: ' + error);
+            };
+        }
+        
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(message);
+                input.value = '';
+            } else {
+                addMessage('❌ WebSocket not connected');
+            }
+        }
+        
+        async function sendBroadcast() {
+            const message = prompt('Enter broadcast message:');
+            if (!message) return;
+            
+            try {
+                const response = await fetch('/broadcast?message=' + encodeURIComponent(message), {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                addMessage('📢 Broadcast sent: ' + message);
+            } catch (error) {
+                addMessage('❌ Broadcast error: ' + error.message);
+            }
+        }
+        
+        function addMessage(message) {
+            const messages = document.getElementById('messages');
+            const div = document.createElement('div');
+            div.textContent = new Date().toLocaleTimeString() + ' - ' + message;
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+        
+        // Auto-connect WebSocket on page load
+        setTimeout(connectWebSocket, 1000);
+    </script>
+</body>
+</html>
