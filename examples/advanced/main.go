@@ -41,7 +41,7 @@ func main() {
 	// Public routes
 	app.GET("/", func(c *Context) error {
 		return c.JSON(200, map[string]interface{}{
-			"message": "🚀 Velocity Framework - Advanced Features Demo",
+			"message": "🚀 Forge Framework - Advanced Features Demo",
 			"version": Version,
 			"features": []string{
 				"WebSocket Support",
@@ -133,7 +133,7 @@ func main() {
 		broadcaster.AddConnection(conn)
 		
 		// Send welcome message
-		conn.Send("Welcome to Velocity WebSocket!")
+		conn.Send("Welcome to Forge WebSocket!")
 		
 		// Broadcast to all connections
 		broadcaster.Broadcast("New user joined the chat!")
@@ -159,8 +159,8 @@ func main() {
 	// Template rendering example
 	app.GET("/template", func(c *Context) error {
 		data := map[string]interface{}{
-			"Title":   "Velocity Template Demo",
-			"Message": "Hello from Velocity Framework!",
+			"Title":   "Forge Template Demo",
+			"Message": "Hello from Forge Framework!",
 			"Time":    time.Now().Format("2006-01-02 15:04:05"),
 		}
 		
@@ -200,6 +200,6 @@ func main() {
 	}()
 	
 	// Start server
-	log.Println("🚀 Starting Velocity server with all advanced features...")
+	log.Println("🚀 Starting Forge server with all advanced features...")
 	log.Fatal(app.Listen(":8080"))
 }
