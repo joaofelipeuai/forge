@@ -44,13 +44,17 @@ Este exemplo demonstra todas as funcionalidades avançadas do Forge Framework.
 ## 📋 Como Executar
 
 ```bash
-# Navegar para o diretório
-cd examples/advanced
+# Do diretório raiz do projeto Forge
+cd forge
 
-# Instalar dependências
+# Instalar dependências (apenas uma vez)
 go mod tidy
 
-# Executar o servidor
+# Executar o servidor avançado
+go run examples/advanced/advanced_server.go
+
+# Ou navegar para o diretório específico
+cd examples/advanced
 go run advanced_server.go
 ```
 
@@ -140,14 +144,20 @@ templateEngine.SetDevMode(true)
 ## 📁 Estrutura de Arquivos
 
 ```
-examples/advanced/
-├── advanced_server.go    # Servidor principal
-├── test_jwt.go          # Teste específico de JWT
-├── go.mod               # Dependências
-├── templates/           # Templates HTML
-│   └── index.html       # Interface principal
-├── uploads/             # Arquivos enviados
-└── README.md           # Esta documentação
+forge/                        # Projeto principal
+├── go.mod                   # Dependências centralizadas
+├── forge.go                 # Core do framework
+├── jwt.go, websocket.go     # Módulos do framework
+└── examples/advanced/       # Este exemplo
+    ├── advanced_server.go   # Servidor principal
+    ├── test_jwt.go         # Teste específico de JWT
+    ├── debug_template.go   # Debug do template engine
+    ├── templates/          # Templates HTML
+    │   ├── index.html      # Interface completa
+    │   ├── test.html       # Template simples
+    │   └── simple.html     # Template ultra-simples
+    ├── uploads/            # Arquivos enviados
+    └── README.md          # Esta documentação
 ```
 
 ## 🚀 Próximos Passos
