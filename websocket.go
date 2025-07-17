@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"sync"
 )
 
 // WebSocket constants
@@ -127,20 +128,31 @@ func WebSocketBroadcast() *WebSocketBroadcaster {
 
 type WebSocketBroadcaster struct {
 	connections map[*WebSocketConnection]bool
+	mu          sync.RWMutex
 }
 
 func (wb *WebSocketBroadcaster) AddConnection(conn *WebSocketConnection) {
+	wb.mu.Lock()
+	defer wb.mu.Unlock()
 	wb.connections[conn] = true
 }
 
 func (wb *WebSocketBroadcaster) RemoveConnection(conn *WebSocketConnection) {
+	wb.mu.Lock()
+	defer wb.mu.Unlock()
 	delete(wb.connections, conn)
 }
 
 func (wb *WebSocketBroadcaster) Broadcast(message string) {
+	wb.mu.RLock()
+	defer wb.mu.RUnlock()
+	
 	for conn := range wb.connections {
 		if !conn.closed {
-			conn.Send(message)
+			// Send in goroutine to avoid blocking
+			go func(c *WebSocketConnection) {
+				c.Send(message)
+			}(conn)
 		}
 	}
 }

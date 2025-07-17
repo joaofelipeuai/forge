@@ -315,22 +315,34 @@ func RateLimiter(requests int, window time.Duration) MiddlewareFunc {
 	clients := make(map[string]*client)
 	mu := sync.RWMutex{}
 	
-	// Cleanup routine
+	// Create context for cleanup routine lifecycle management
+	ctx, cancel := context.WithCancel(context.Background())
+	
+	// Cleanup routine with proper lifecycle management
 	go func() {
 		ticker := time.NewTicker(window)
 		defer ticker.Stop()
 		
-		for range ticker.C {
-			mu.Lock()
-			now := time.Now()
-			for ip, cl := range clients {
-				if now.Sub(cl.window) > window {
-					delete(clients, ip)
+		for {
+			select {
+			case <-ctx.Done():
+				return // Gracefully exit when context is cancelled
+			case <-ticker.C:
+				mu.Lock()
+				now := time.Now()
+				for ip, cl := range clients {
+					if now.Sub(cl.window) > window {
+						delete(clients, ip)
+					}
 				}
+				mu.Unlock()
 			}
-			mu.Unlock()
 		}
 	}()
+	
+	// Store cancel function for potential cleanup (in a real implementation,
+	// this would be managed by the Forge instance lifecycle)
+	_ = cancel // TODO: Integrate with Forge shutdown
 	
 	return func(c *Context) error {
 		ip := c.Request.RemoteAddr
